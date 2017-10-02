@@ -1,0 +1,7 @@
+-- Your SQL goes here
+CREATE TABLE users (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   handle TEXT UNIQUE NOT NULL,
+   real_name TEXT NOT NULL DEFAULT '',
+   blurb TEXT NOT NULL DEFAULT ''
+)

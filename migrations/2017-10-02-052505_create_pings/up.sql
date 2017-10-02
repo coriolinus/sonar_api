@@ -1,0 +1,10 @@
+-- Your SQL goes here
+CREATE TABLE pings (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   user INTEGER,
+   "timestamp" TEXT DEFAULT CURRENT_TIMESTAMP,
+   content TEXT NOT NULL,
+   likes INTEGER NOT NULL DEFAULT 0,
+   echoes INTEGER NOT NULL DEFAULT 0,
+   FOREIGN KEY (user) REFERENCES users(id)
+)

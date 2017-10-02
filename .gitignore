@@ -1,0 +1,10 @@
+# Cargo-generated
+
+/target/
+**/*.rs.bk
+
+# Environment
+.env
+
+# Database
+sonar.sqlite3
