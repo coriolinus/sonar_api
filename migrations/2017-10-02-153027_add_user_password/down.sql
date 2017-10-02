@@ -1,0 +1,3 @@
+-- This file should undo anything in `up.sql`
+-- Unfortunately, sqlite doesn't support 'remove column' operations
+-- without going through a bunch of hassle, so we can't help it
