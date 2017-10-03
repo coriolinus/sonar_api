@@ -10,6 +10,9 @@ use std::fmt;
 /// `[a-zA-Z0-9]`, which reduces the entropy per byte from 256 to 62; roughly a quarter.
 /// Therefore, we quadruple the salt's length in order to retain entropy.
 const SALT_LENGTH: usize = argon2rs::defaults::LENGTH * 4;
+/// How long is the password hash.
+///
+/// We just take this from the hashing library.
 const HASH_LENGTH: usize = argon2rs::defaults::LENGTH;
 
 /// Salted Password representation.

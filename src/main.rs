@@ -2,14 +2,22 @@
 #![feature(try_trait)]
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
-extern crate rocket;
 extern crate argon2rs;
+extern crate chrono;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
 extern crate diesel_codegen;
 extern crate dotenv;
+#[macro_use]
+extern crate lazy_static;
 extern crate rand;
+extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
+extern crate r2d2;
+extern crate r2d2_diesel;
+
 
 mod auth;
 mod db;
