@@ -2,7 +2,7 @@
 use chrono::NaiveDateTime;
 use super::schema::{users, pings, auth_tokens};
 
-#[derive(Queryable)]
+#[derive(Identifiable, Queryable)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -20,10 +20,11 @@ pub struct NewUser<'a> {
     pub blurb: &'a str,
 }
 
-#[derive(Queryable)]
+#[derive(Identifiable, Queryable, Associations)]
+#[belongs_to(User)]
 pub struct Ping {
     pub id: i32,
-    pub user: i32,
+    pub user_id: i32,
     pub timestamp: NaiveDateTime,
     pub content: String,
     pub likes: u32,
@@ -33,14 +34,16 @@ pub struct Ping {
 #[derive(Insertable)]
 #[table_name = "pings"]
 pub struct NewPing<'a> {
-    pub user: i32,
+    pub user_id: i32,
     pub content: &'a str,
 }
 
-#[derive(Queryable)]
+#[derive(Identifiable, Queryable, Associations)]
+#[belongs_to(User)]
+#[table_name = "auth_tokens"]
 pub struct Token {
     pub id: i32,
-    pub user: i32,
+    pub user_id: i32,
     pub timestamp: NaiveDateTime,
     pub key: String,
 }
@@ -48,6 +51,6 @@ pub struct Token {
 #[derive(Insertable)]
 #[table_name = "auth_tokens"]
 pub struct NewToken<'a> {
-    pub user: i32,
+    pub user_id: i32,
     pub key: &'a str,
 }
