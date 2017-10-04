@@ -16,3 +16,13 @@ rocket_codegen = "0.3.3"
 rocket_contrib = { version = "*", default-features = false, features = ["json"]}
 r2d2 = "0.7.4"
 r2d2-diesel = "0.16.0"
+serde = "1.0.15"
+serde_derive = "1.0.15"
+
+[features]
+default = []
+# The macro idents feature enables the status_code! macro,
+# which requires macros to be able to produce idents, which
+# they currently cannot. This will be fixed in Rust sometime
+# in the future; for now, don't enable this.
+macro-idents = []

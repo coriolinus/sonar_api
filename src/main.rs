@@ -1,6 +1,7 @@
 #![recursion_limit = "128"]
-#![feature(try_trait)]
+#![feature(conservative_impl_trait)]
 #![feature(plugin)]
+#![feature(try_trait)]
 #![plugin(rocket_codegen)]
 extern crate argon2rs;
 extern crate chrono;
@@ -17,16 +18,22 @@ extern crate rocket;
 extern crate rocket_contrib;
 extern crate r2d2;
 extern crate r2d2_diesel;
+#[macro_use]
+extern crate serde_derive;
 
 
-mod auth;
-mod db;
-pub mod models;
-mod views;
+pub mod auth;
+pub mod db;
+mod models;
+pub mod status;
 mod schema;
+mod views;
+
+use views::*;
 
 fn main() {
     rocket::ignite()
-        .mount("/v1", routes![views::index])
+        .mount("/v1", routes![create_user])
+        .catch(errors![not_found])
         .launch();
 }
