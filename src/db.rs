@@ -20,6 +20,10 @@ lazy_static! {
     pub static ref CONNECTION_POOL: SqliteConnectionPool = create_connection_pool();
 }
 
+/// Establish a database connection
+///
+/// Normally it's preferable to get one out of the connection pool,
+/// but this works to create one from scratch.
 pub fn establish_connection() -> SqliteConnection {
     SqliteConnection::establish(&DATABASE_URL).expect(&format!(
         "Error connecting to {}",

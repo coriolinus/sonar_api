@@ -25,6 +25,7 @@ extern crate serde_derive;
 pub mod auth;
 pub mod db;
 mod models;
+#[macro_use]
 pub mod status;
 mod schema;
 mod views;

@@ -1,6 +1,7 @@
 //! Models for sonar go here
+use auth::pw::SaltyPassword;
 use chrono::NaiveDateTime;
-use super::schema::{users, pings, auth_tokens};
+use schema::{users, pings, auth_tokens};
 
 #[derive(Identifiable, Queryable)]
 pub struct User {
@@ -13,11 +14,22 @@ pub struct User {
 
 #[derive(Insertable)]
 #[table_name = "users"]
-pub struct NewUser<'a> {
-    pub username: &'a str,
-    pub password: &'a str,
-    pub real_name: &'a str,
-    pub blurb: &'a str,
+pub struct NewUser {
+    username: String,
+    password: String,
+    real_name: String,
+    blurb: String,
+}
+
+impl NewUser {
+    pub fn new(username: &str, password: &str, real_name: &str, blurb: &str) -> NewUser {
+        NewUser {
+            username: username.to_string(),
+            password: SaltyPassword::new(&password).to_string(),
+            real_name: real_name.to_string(),
+            blurb: blurb.to_string(),
+        }
+    }
 }
 
 #[derive(Identifiable, Queryable, Associations)]
