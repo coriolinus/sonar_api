@@ -5,7 +5,7 @@
 //! not all use the `TokenAuth` guard; after all, you have
 //! to get your token from somewhere.
 
-use db::DB;
+use db::{Connection, DB};
 use diesel::prelude::*;
 use diesel::{self, select};
 use models::NewUser;
@@ -35,7 +35,7 @@ impl UserData {
     ///
     /// Return Ok(Self) if so.
     /// Return Err(Json) with an explanation if not.
-    fn validate(&self, conn: &SqliteConnection) -> Result<(), Status<Json<Value>>> {
+    fn validate(&self, conn: &Connection) -> Result<(), Status<Json<Value>>> {
         use diesel::expression::dsl::exists;
         use schema::users::dsl::*;
 
@@ -61,7 +61,7 @@ impl UserData {
         Ok(())
     }
 
-    fn into_new_user(self, conn: &SqliteConnection) -> Result<NewUser, Status<Json<Value>>> {
+    fn into_new_user(self, conn: &Connection) -> Result<NewUser, Status<Json<Value>>> {
         self.validate(conn).map(move |_| {
             NewUser::new(
                 &self.username,
