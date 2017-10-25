@@ -1,15 +1,33 @@
 //! Models for sonar go here
 use auth::pw::SaltyPassword;
 use chrono::NaiveDateTime;
+use db::Connection;
+use diesel;
+use diesel::prelude::*;
+use diesel::result::QueryResult;
 use schema::{users, pings, auth_tokens};
 
 #[derive(Identifiable, Queryable)]
 pub struct User {
     pub id: i32,
     pub username: String,
-    pub password: String,
+    password: String,
     pub real_name: String,
     pub blurb: String,
+}
+
+impl User {
+    /// Validated a given username and plaintext password
+    ///
+    /// Return `true` if the given username exists and matches the given password
+    fn validate(conn: &Connection, username: &str, password: &str) -> bool {
+        unimplemented!()
+    }
+
+    /// Get the User object corresponding to a given username and plaintext password
+    fn get_validated(conn: &Connection, username: &str, password: &str) -> QueryResult<User> {
+        unimplemented!()
+    }
 }
 
 #[derive(Insertable)]
@@ -22,13 +40,29 @@ pub struct NewUser {
 }
 
 impl NewUser {
-    pub fn new(username: &str, password: &str, real_name: &str, blurb: &str) -> NewUser {
+    pub fn new(username: String, password: String, real_name: String, blurb: String) -> NewUser {
         NewUser {
-            username: username.to_string(),
+            username: username,
             password: SaltyPassword::new(&password).to_string(),
-            real_name: real_name.to_string(),
-            blurb: blurb.to_string(),
+            real_name: real_name,
+            blurb: blurb,
         }
+    }
+
+    pub fn insert(self, conn: &Connection) -> QueryResult<User> {
+        use schema::users::dsl::*;
+        diesel::insert(&self)
+            .into(users)
+            // ideally we'd use .get_result(conn) here instead of
+            // .execute(conn), because we'd prefer to fetch the
+            // newly inserted row immediately. Unfortunately,
+            // SQLite doesn't support that, so we're stuck making
+            // another query to fetch it.
+            .execute(conn)?;
+
+        users.filter(username.eq(&self.username)).first::<User>(
+            conn,
+        )
     }
 }
 

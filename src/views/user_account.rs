@@ -7,10 +7,9 @@
 
 use db::{Connection, DB};
 use diesel::prelude::*;
-use diesel::{self, select};
-use models::NewUser;
+use diesel::select;
+use models::{NewUser, User};
 use rocket_contrib::{Json, Value};
-use schema::users;
 use status::Status;
 
 macro_rules! DB_FAILURE {
@@ -19,6 +18,15 @@ macro_rules! DB_FAILURE {
             InternalServerError,
             Json(json!({"error": "Failed to connect to backing database"}))
         )
+    }
+}
+
+macro_rules! or_return {
+    ($predicate:expr, $rv_func:expr) => {
+        match $predicate {
+            Ok(v) => v,
+            Err(e) => return $rv_func(e),
+        }
     }
 }
 
@@ -61,38 +69,45 @@ impl UserData {
         Ok(())
     }
 
-    fn into_new_user(self, conn: &Connection) -> Result<NewUser, Status<Json<Value>>> {
-        self.validate(conn).map(move |_| {
+    fn into_user(self, conn: &Connection) -> Result<User, Status<Json<Value>>> {
+        let new_user = self.validate(conn).map(move |_| {
             NewUser::new(
-                &self.username,
-                &self.password,
-                &self.real_name.unwrap_or(String::new()),
-                &self.blurb.unwrap_or(String::new()),
+                self.username,
+                self.password,
+                self.real_name.unwrap_or(String::new()),
+                self.blurb.unwrap_or(String::new()),
             )
-        })
+        })?;
+        new_user.insert(conn).map_err(|_| DB_FAILURE!())
     }
 }
 
-macro_rules! or_return {
-    ($predicate:expr, $rv_func:expr) => {
-        match $predicate {
-            Ok(v) => v,
-            Err(e) => return $rv_func(e),
-        }
-    }
+
+fn serialize_user(user: User) -> Json<Value> {
+    Json(json!({
+        "username": user.username,
+        "real_name": user.real_name,
+        "blurb": user.blurb,
+    }))
 }
+
 
 /// View with which to create a user
 #[post("/users", format = "application/json", data = "<user_data>")]
 fn create_user(user_data: Json<UserData>, db: DB) -> Status<Json<Value>> {
     let conn = db.conn();
     // https://stackoverflow.com/questions/46905070/
-    let new_user_result = user_data.into_inner().into_new_user(&conn);
-    let new_user = or_return!(new_user_result, |e| e);
-    or_return!(diesel::insert(&new_user)
-        .into(users::table)
-        .execute(conn),
-        |_| DB_FAILURE!());
+    let user = or_return!(user_data.into_inner().into_user(&conn), |e| e);
+    status!(
+        Created,
+        format!("/users/{}", user.username),
+        Some(serialize_user(user))
+    )
+}
 
+/// View with which to get a user
+#[get("/users/<username>")]
+fn get_user(username: String, db: DB) -> Status<Json<Value>> {
+    let conn = db.conn();
     unimplemented!()
 }
